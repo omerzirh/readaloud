@@ -8,6 +8,7 @@ import { HomeScreen } from './src/screens/HomeScreen';
 import { TutorialScreen } from './src/screens/TutorialScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { HelpScreen } from './src/screens/HelpScreen';
+import { LanguageSelectScreen } from './src/screens/LanguageSelectScreen';
 import { RootStackParamList } from './src/types';
 import { LanguageProvider, useLanguage } from './src/i18n/LanguageContext';
 
@@ -97,6 +98,14 @@ function AppContent() {
           <Stack.Screen name="Tutorial" component={TutorialScreen} />
         )}
         <Stack.Screen name="Home" component={TabNavigator} />
+        <Stack.Screen 
+          name="LanguageSelect" 
+          component={LanguageSelectScreen}
+          options={{
+            presentation: 'fullScreenModal',
+            headerShown: false,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

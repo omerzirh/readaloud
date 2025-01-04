@@ -1,8 +1,15 @@
+import type { Voice } from 'expo-speech';
+
 export type RootStackParamList = {
-  Home: undefined;
   Tutorial: undefined;
+  Home: undefined;
   Settings: undefined;
   Help: undefined;
+  LanguageSelect: {
+    voices: Voice[];
+    selectedLanguage: string;
+    onSelect: (language: string) => void;
+  };
 };
 
 export type MessageHistoryItem = {

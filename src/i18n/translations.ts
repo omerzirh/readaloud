@@ -16,6 +16,7 @@ export const translations = {
       english: 'English',
       turkish: 'Turkish',
       preview: 'This is a test of the current speech settings',
+      searchLanguages: 'Search languages...',
     },
     help: {
       sections: {
@@ -91,6 +92,7 @@ export const translations = {
       english: 'İngilizce',
       turkish: 'Türkçe',
       preview: 'Bu mevcut konuşma ayarlarının bir testidir',
+      searchLanguages: 'Dillerde ara...',
     },
     help: {
       sections: {

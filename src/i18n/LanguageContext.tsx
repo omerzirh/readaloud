@@ -63,7 +63,11 @@ interface TranslationData {
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => Promise<void>;
-  t: (section: TranslationKey, key: string, subKey?: string) => string | TutorialStep[] | HelpSections;
+  t: {
+    (section: TranslationKey, key: 'steps', subKey?: undefined): TutorialStep[];
+    (section: TranslationKey, key: 'sections', subKey?: undefined): HelpSections;
+    (section: TranslationKey, key: string, subKey?: string): string;
+  };
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -130,6 +134,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const currentTranslations = translations[language] as TranslationData;
       const fallbackTranslations = translations.en as TranslationData;
 
+      // Special cases for complex types
       if (section === 'tutorial' && key === 'steps') {
         return currentTranslations.tutorial.steps || fallbackTranslations.tutorial.steps;
       }
@@ -138,11 +143,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return currentTranslations.help.sections || fallbackTranslations.help.sections;
       }
 
+      // Handle string translations
       const sectionData = currentTranslations[section];
       if (subKey && typeof sectionData === 'object') {
-        const subSection = sectionData[key];
-        if (typeof subSection === 'object' && subKey in subSection) {
-          return subSection[subKey] || fallbackTranslations[section][key][subKey];
+        const subSection = sectionData[key] as Record<string, string>;
+        if (subKey in subSection) {
+          return subSection[subKey] || (fallbackTranslations[section][key] as Record<string, string>)[subKey];
         }
       }
 

@@ -30,10 +30,31 @@
         "READ_CLIPBOARD",
         "WRITE_CLIPBOARD"
       ],
-      "package": "com.readaloud.app"
+      "package": "com.readaloud.app",
+      "intentFilters": [
+        {
+          "action": "android.intent.action.PROCESS_TEXT",
+          "category": ["android.intent.category.DEFAULT"],
+          "data": [
+            {
+              "mimeType": "text/plain"
+            }
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraProguardRules": "-keep class com.readaloud.app.TextProcessingService { *; }"
+          }
+        }
+      ]
+    ]
   }
 }

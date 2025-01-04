@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Speech from 'expo-speech';
 import { MessageHistoryItem } from '../types';
@@ -8,6 +8,37 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const HomeScreen = () => {
   const [messageHistory, setMessageHistory] = useState<MessageHistoryItem[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const handleInitialText = async () => {
+        // @ts-ignore - This is a custom native module
+        const TextProcessor = require('expo-modules-core').NativeModulesProxy.TextProcessor;
+        if (TextProcessor) {
+          try {
+            const initialText = await TextProcessor.getInitialText();
+            if (initialText) {
+              handleNewText(initialText);
+            }
+          } catch (error) {
+            console.error('Error getting initial text:', error);
+          }
+        }
+      };
+
+      handleInitialText();
+    }
+  }, []);
+
+  const handleNewText = (text: string) => {
+    const newMessage: MessageHistoryItem = {
+      id: Date.now().toString(),
+      text,
+      timestamp: Date.now(),
+    };
+    setMessageHistory(prev => [newMessage, ...prev]);
+    readText(text);
+  };
 
   const readText = async (text: string) => {
     if (isSpeaking) {
@@ -31,13 +62,7 @@ export const HomeScreen = () => {
   const getClipboardContent = async () => {
     const text = await Clipboard.getStringAsync();
     if (text) {
-      const newMessage: MessageHistoryItem = {
-        id: Date.now().toString(),
-        text,
-        timestamp: Date.now(),
-      };
-      setMessageHistory(prev => [newMessage, ...prev]);
-      readText(text);
+      handleNewText(text);
     }
   };
 

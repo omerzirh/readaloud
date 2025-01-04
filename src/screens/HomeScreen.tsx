@@ -5,6 +5,7 @@ import * as Speech from 'expo-speech';
 import { MessageHistoryItem, TTSSettings } from '../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const DEFAULT_SETTINGS = {
   rate: 1.0,
@@ -13,6 +14,7 @@ const DEFAULT_SETTINGS = {
 };
 
 export const HomeScreen = () => {
+  const { t } = useLanguage();
   const [messageHistory, setMessageHistory] = useState<MessageHistoryItem[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ttsSettings, setTtsSettings] = useState<TTSSettings>(DEFAULT_SETTINGS);
@@ -107,7 +109,7 @@ export const HomeScreen = () => {
         style={styles.clipboardButton}
         onPress={getClipboardContent}
       >
-        <Text style={styles.buttonText}>Read Clipboard</Text>
+        <Text style={styles.buttonText}>{t('common', 'readClipboard')}</Text>
       </TouchableOpacity>
       <FlatList
         data={messageHistory}

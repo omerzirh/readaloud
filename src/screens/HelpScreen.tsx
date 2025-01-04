@@ -1,51 +1,31 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const HELP_SECTIONS = [
-  {
-    title: 'Using Text Selection',
-    steps: [
-      'Select any text in any app',
-      'Tap the "Read Aloud" option in the floating toolbar',
-      'The app will open and read the text automatically',
-    ],
-  },
-  {
-    title: 'Using Clipboard',
-    steps: [
-      'Copy any text from any app',
-      'Open the WhatsApp Message Reader app',
-      'Tap "Read Clipboard" to hear the text',
-    ],
-  },
-  {
-    title: 'Message History',
-    steps: [
-      'Previously read messages appear in the list',
-      'Tap any message to hear it again',
-      'Messages are sorted by most recent first',
-    ],
-  },
-  {
-    title: 'Customizing Speech',
-    steps: [
-      'Go to Settings',
-      'Adjust speech rate and pitch',
-      'Choose your preferred language',
-      'Changes are saved automatically',
-    ],
-  },
-];
+interface HelpStep {
+  title: string;
+  steps: string[];
+}
+
+interface HelpSections {
+  textSelection: HelpStep;
+  clipboard: HelpStep;
+  history: HelpStep;
+  customizing: HelpStep;
+}
 
 export const HelpScreen = () => {
+  const { t } = useLanguage();
+  const sections = t('help', 'sections') as HelpSections;
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        {HELP_SECTIONS.map((section, index) => (
-          <View key={section.title} style={styles.section}>
+        {Object.entries(sections).map(([key, section]: [string, HelpStep]) => (
+          <View key={key} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
-            {section.steps.map((step, stepIndex) => (
+            {section.steps.map((step: string, stepIndex: number) => (
               <View key={stepIndex} style={styles.stepContainer}>
                 <Text style={styles.stepNumber}>{stepIndex + 1}.</Text>
                 <Text style={styles.stepText}>{step}</Text>

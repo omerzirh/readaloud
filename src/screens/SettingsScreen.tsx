@@ -4,6 +4,7 @@ import Slider from '@react-native-community/slider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Speech from 'expo-speech';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const DEFAULT_SETTINGS = {
   rate: 1.0,
@@ -12,6 +13,7 @@ const DEFAULT_SETTINGS = {
 };
 
 export const SettingsScreen = () => {
+  const { t, language, setLanguage } = useLanguage();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [availableLanguages, setAvailableLanguages] = useState<Speech.Voice[]>([]);
 
@@ -45,7 +47,7 @@ export const SettingsScreen = () => {
       await AsyncStorage.setItem('ttsSettings', JSON.stringify(newSettings));
       setSettings(newSettings);
       // Preview the settings
-      Speech.speak('This is a test of the current speech settings', {
+      Speech.speak(t('settings', 'preview'), {
         rate: newSettings.rate,
         pitch: newSettings.pitch,
         language: newSettings.language,
@@ -60,20 +62,20 @@ export const SettingsScreen = () => {
       new Set(availableLanguages.map(voice => voice.language))
     );
 
-    return uniqueLanguages.map(language => (
+    return uniqueLanguages.map(lang => (
       <TouchableOpacity
-        key={language}
+        key={lang}
         style={[
           styles.languageOption,
-          settings.language === language && styles.selectedLanguage,
+          settings.language === lang && styles.selectedLanguage,
         ]}
-        onPress={() => saveSettings({ ...settings, language })}
+        onPress={() => saveSettings({ ...settings, language: lang })}
       >
         <Text style={[
           styles.languageText,
-          settings.language === language && styles.selectedLanguageText,
+          settings.language === lang && styles.selectedLanguageText,
         ]}>
-          {language}
+          {lang}
         </Text>
       </TouchableOpacity>
     ));
@@ -83,7 +85,41 @@ export const SettingsScreen = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Speech Rate</Text>
+          <Text style={styles.sectionTitle}>{t('settings', 'appLanguage')}</Text>
+          <View style={styles.languageContainer}>
+            <TouchableOpacity
+              style={[
+                styles.languageOption,
+                language === 'en' && styles.selectedLanguage,
+              ]}
+              onPress={() => setLanguage('en')}
+            >
+              <Text style={[
+                styles.languageText,
+                language === 'en' && styles.selectedLanguageText,
+              ]}>
+                {t('settings', 'english')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.languageOption,
+                language === 'tr' && styles.selectedLanguage,
+              ]}
+              onPress={() => setLanguage('tr')}
+            >
+              <Text style={[
+                styles.languageText,
+                language === 'tr' && styles.selectedLanguageText,
+              ]}>
+                {t('settings', 'turkish')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('settings', 'speechRate')}</Text>
           <Slider
             style={styles.slider}
             minimumValue={0.5}
@@ -98,7 +134,7 @@ export const SettingsScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Pitch</Text>
+          <Text style={styles.sectionTitle}>{t('settings', 'pitch')}</Text>
           <Slider
             style={styles.slider}
             minimumValue={0.5}
@@ -113,7 +149,7 @@ export const SettingsScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Language</Text>
+          <Text style={styles.sectionTitle}>{t('settings', 'ttsLanguage')}</Text>
           <View style={styles.languageContainer}>
             {renderLanguageOptions()}
           </View>
@@ -123,7 +159,7 @@ export const SettingsScreen = () => {
           style={styles.resetButton}
           onPress={() => saveSettings(DEFAULT_SETTINGS)}
         >
-          <Text style={styles.resetButtonText}>Reset to Defaults</Text>
+          <Text style={styles.resetButtonText}>{t('common', 'reset')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -9,11 +9,14 @@ import { TutorialScreen } from './src/screens/TutorialScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { HelpScreen } from './src/screens/HelpScreen';
 import { RootStackParamList } from './src/types';
+import { LanguageProvider, useLanguage } from './src/i18n/LanguageContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
 function TabNavigator() {
+  const { t } = useLanguage();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -44,23 +47,23 @@ function TabNavigator() {
       <Tab.Screen 
         name="Home" 
         component={HomeScreen}
-        options={{ title: 'Message Reader' }}
+        options={{ title: t('common', 'messageReader') }}
       />
       <Tab.Screen 
         name="Settings" 
         component={SettingsScreen}
-        options={{ title: 'Settings' }}
+        options={{ title: t('common', 'settings') }}
       />
       <Tab.Screen 
         name="Help" 
         component={HelpScreen}
-        options={{ title: 'How to Use' }}
+        options={{ title: t('common', 'help') }}
       />
     </Tab.Navigator>
   );
 }
 
-export default function App() {
+function AppContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [tutorialShown, setTutorialShown] = useState(false);
 
@@ -96,6 +99,14 @@ export default function App() {
         <Stack.Screen name="Home" component={TabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

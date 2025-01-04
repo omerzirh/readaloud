@@ -1,35 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Tutorial'>;
 };
 
-const TUTORIAL_STEPS = [
-  {
-    title: 'Copy Text from WhatsApp',
-    description: 'Long press on any message in WhatsApp and tap "Copy"',
-  },
-  {
-    title: 'Open Quick Settings',
-    description: 'Swipe down from the top of your screen to open Quick Settings',
-  },
-  {
-    title: 'Use Read Text',
-    description: 'Tap the "Read Text" button to hear the copied message',
-  },
-];
-
 export const TutorialScreen = ({ navigation }: Props) => {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
+  const steps = t('tutorial', 'steps') as { title: string; description: string }[];
+
   const handleNext = async () => {
-    if (currentStep < TUTORIAL_STEPS.length - 1) {
+    if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       if (dontShowAgain) {
@@ -39,17 +28,19 @@ export const TutorialScreen = ({ navigation }: Props) => {
     }
   };
 
+  const currentStepData = steps[currentStep];
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>{TUTORIAL_STEPS[currentStep].title}</Text>
+        <Text style={styles.title}>{currentStepData.title}</Text>
         <Text style={styles.description}>
-          {TUTORIAL_STEPS[currentStep].description}
+          {currentStepData.description}
         </Text>
       </View>
 
       <View style={styles.footer}>
-        {currentStep === TUTORIAL_STEPS.length - 1 && (
+        {currentStep === steps.length - 1 && (
           <TouchableOpacity
             style={styles.checkbox}
             onPress={() => setDontShowAgain(!dontShowAgain)}
@@ -57,13 +48,15 @@ export const TutorialScreen = ({ navigation }: Props) => {
             <View style={[styles.checkboxBox, dontShowAgain && styles.checked]}>
               {dontShowAgain && <Text style={styles.checkmark}>✓</Text>}
             </View>
-            <Text style={styles.checkboxLabel}>Don't show again</Text>
+            <Text style={styles.checkboxLabel}>{t('tutorial', 'dontShowAgain') as string}</Text>
           </TouchableOpacity>
         )}
 
         <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>
-            {currentStep === TUTORIAL_STEPS.length - 1 ? 'Get Started' : 'Next'}
+            {currentStep === steps.length - 1 
+              ? t('tutorial', 'getStarted') as string 
+              : t('tutorial', 'next') as string}
           </Text>
         </TouchableOpacity>
       </View>

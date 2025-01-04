@@ -1,25 +1,36 @@
 {
   "expo": {
-    "name": "readaloud",
+    "name": "WhatsApp Message Reader",
     "slug": "readaloud",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to the microphone for text-to-speech functionality"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "INTERNET",
+        "READ_CLIPBOARD",
+        "WRITE_CLIPBOARD"
+      ],
+      "package": "com.readaloud.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -2,14 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Speech from 'expo-speech';
-import { MessageHistoryItem } from '../types';
+import { MessageHistoryItem, TTSSettings } from '../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const DEFAULT_SETTINGS = {
+  rate: 1.0,
+  pitch: 1.0,
+  language: 'en-US',
+};
 
 export const HomeScreen = () => {
   const [messageHistory, setMessageHistory] = useState<MessageHistoryItem[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [ttsSettings, setTtsSettings] = useState<TTSSettings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
+    loadSettings();
     if (Platform.OS === 'android') {
       const handleInitialText = async () => {
         // @ts-ignore - This is a custom native module
@@ -29,6 +38,17 @@ export const HomeScreen = () => {
       handleInitialText();
     }
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      const savedSettings = await AsyncStorage.getItem('ttsSettings');
+      if (savedSettings) {
+        setTtsSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  };
 
   const handleNewText = (text: string) => {
     const newMessage: MessageHistoryItem = {
@@ -50,6 +70,7 @@ export const HomeScreen = () => {
     setIsSpeaking(true);
     try {
       await Speech.speak(text, {
+        ...ttsSettings,
         onDone: () => setIsSpeaking(false),
         onError: () => setIsSpeaking(false),
       });

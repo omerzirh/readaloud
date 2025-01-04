@@ -1,12 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { TutorialScreen } from './src/screens/TutorialScreen';
+import { SettingsScreen } from './src/screens/SettingsScreen';
+import { HelpScreen } from './src/screens/HelpScreen';
 import { RootStackParamList } from './src/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<RootStackParamList>();
+
+function TabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          } else {
+            iconName = focused ? 'help-circle' : 'help-circle-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTitleStyle: {
+          color: '#000',
+        },
+      })}
+    >
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen}
+        options={{ title: 'Message Reader' }}
+      />
+      <Tab.Screen 
+        name="Settings" 
+        component={SettingsScreen}
+        options={{ title: 'Settings' }}
+      />
+      <Tab.Screen 
+        name="Help" 
+        component={HelpScreen}
+        options={{ title: 'How to Use' }}
+      />
+    </Tab.Navigator>
+  );
+}
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,13 +86,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={tutorialShown ? 'Home' : 'Tutorial'}
         screenOptions={{
           headerShown: false,
         }}
       >
-        <Stack.Screen name="Tutorial" component={TutorialScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
+        {!tutorialShown && (
+          <Stack.Screen name="Tutorial" component={TutorialScreen} />
+        )}
+        <Stack.Screen name="Home" component={TabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

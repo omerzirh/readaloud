@@ -33,14 +33,18 @@
       "intentFilters": [
         {
           "action": "android.intent.action.SEND",
-          "category": ["android.intent.category.DEFAULT"],
+          "category": [
+            "android.intent.category.DEFAULT"
+          ],
           "data": {
             "mimeType": "text/*"
           }
         },
         {
           "action": "android.intent.action.SEND_MULTIPLE",
-          "category": ["android.intent.category.DEFAULT"],
+          "category": [
+            "android.intent.category.DEFAULT"
+          ],
           "data": {
             "mimeType": "text/*"
           }
@@ -69,6 +73,9 @@
     },
     "developmentClient": {
       "silentLaunch": true
+    },
+    "ios": {
+      "bundleIdentifier": "com.readaloud.app"
     }
   }
 }

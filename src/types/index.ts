@@ -2,7 +2,7 @@ import type { Voice } from 'expo-speech';
 
 export type RootStackParamList = {
   Tutorial: undefined;
-  Home: undefined;
+  Home: { sharedText?: string } | undefined;
   Settings: undefined;
   Help: undefined;
   LanguageSelect: {

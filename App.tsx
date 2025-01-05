@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useState, useRef } from 'react';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,9 @@ import { HelpScreen } from './src/screens/HelpScreen';
 import { LanguageSelectScreen } from './src/screens/LanguageSelectScreen';
 import { RootStackParamList } from './src/types';
 import { LanguageProvider, useLanguage } from './src/i18n/LanguageContext';
+import * as Linking from 'expo-linking';
+import { Platform } from 'react-native';
+import { useShareIntent } from 'expo-share-intent';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -67,10 +70,23 @@ function TabNavigator() {
 function AppContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [tutorialShown, setTutorialShown] = useState(false);
+  const navigation = useRef<NavigationContainerRef<RootStackParamList>>(null);
+  const { hasShareIntent, shareIntent, resetShareIntent, error } = useShareIntent();
 
   useEffect(() => {
     checkTutorialStatus();
   }, []);
+
+  useEffect(() => {
+    if (hasShareIntent && shareIntent) {
+      // Handle the shared content
+      if (shareIntent.text) {
+        handleSharedText(shareIntent.text);
+      }
+      // Reset the share intent after handling
+      resetShareIntent();
+    }
+  }, [hasShareIntent, shareIntent]);
 
   const checkTutorialStatus = async () => {
     try {
@@ -83,12 +99,19 @@ function AppContent() {
     }
   };
 
+  const handleSharedText = async (sharedText: string) => {
+    // Navigate to Home screen if not already there
+    navigation.current?.navigate('Home', {
+      sharedText: sharedText
+    });
+  };
+
   if (isLoading) {
     return null;
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigation}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,

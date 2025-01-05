@@ -14,13 +14,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.readaloud.app",
-      "infoPlist": {
-        "NSMicrophoneUsageDescription": "This app needs access to the microphone for text-to-speech functionality"
-      }
-    },
+    "scheme": "readaloud",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -30,19 +24,51 @@
       "permissions": [
         "INTERNET",
         "READ_CLIPBOARD",
-        "WRITE_CLIPBOARD"
+        "WRITE_CLIPBOARD",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "SYSTEM_ALERT_WINDOW",
+        "VIBRATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "android.intent.action.SEND",
+          "category": ["android.intent.category.DEFAULT"],
+          "data": {
+            "mimeType": "text/*"
+          }
+        },
+        {
+          "action": "android.intent.action.SEND_MULTIPLE",
+          "category": ["android.intent.category.DEFAULT"],
+          "data": {
+            "mimeType": "text/*"
+          }
+        }
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "locales": {
-      "en": {
-        "name": "ReadAloud"
-      },
-      "tr": {
-        "name": "Sesli Oku"
+    "plugins": [
+      [
+        "expo-share-intent",
+        {
+          "disableIOS": true,
+          "androidMainActivityAttributes": {
+            "android:launchMode": "singleTask",
+            "android:exported": "true"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0b7f9dea-7a5b-4344-b83d-125d2045ca36"
       }
+    },
+    "developmentClient": {
+      "silentLaunch": true
     }
   }
 }

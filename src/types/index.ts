@@ -1,25 +1,17 @@
-import type { Voice } from 'expo-speech';
-
-export type RootStackParamList = {
-  Tutorial: undefined;
-  Home: { sharedText?: string } | undefined;
-  Settings: undefined;
-  Help: undefined;
-  LanguageSelect: {
-    voices: Voice[];
-    selectedLanguage: string;
-    onSelect: (language: string) => void;
-  };
-};
-
-export type MessageHistoryItem = {
+export interface MessageHistoryItem {
   id: string;
   text: string;
   timestamp: number;
-};
+}
 
-export type TTSSettings = {
+export interface TTSSettings {
   rate: number;
   pitch: number;
-  language: string;
+}
+
+export type RootStackParamList = {
+  Home: { sharedText?: string } | undefined;
+  Settings: undefined;
+  Help: undefined;
+  Tutorial: undefined;
 }; 

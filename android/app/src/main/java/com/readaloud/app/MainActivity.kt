@@ -10,8 +10,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.content.Context
-import org.json.JSONObject
-import java.util.Locale
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -23,20 +21,6 @@ import expo.modules.ReactActivityDelegateWrapper
 class MainActivity : ReactActivity() {
   private val PERMISSION_REQUEST_CODE = 123
   private var pendingSharedText: String? = null
-
-  private fun getSelectedLanguage(): String {
-    try {
-      val prefs = applicationContext.getSharedPreferences("readaloud", Context.MODE_PRIVATE)
-      val ttsSettings = prefs.getString("@AsyncStorage:ttsSettings", null)
-      if (ttsSettings != null) {
-        val json = JSONObject(ttsSettings)
-        return json.getString("language").split("-")[0]
-      }
-    } catch (e: Exception) {
-      Log.e("MainActivity", "Error reading language from AsyncStorage", e)
-    }
-    return Locale.getDefault().language
-  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     try {
@@ -140,9 +124,6 @@ class MainActivity : ReactActivity() {
   private fun startTTSService(text: String) {
     val serviceIntent = Intent(applicationContext, TextToSpeechService::class.java).apply {
       putExtra("text", text)
-      val language = getSelectedLanguage()
-      Log.d("MainActivity", "Using language from storage: $language")
-      putExtra("language", language)
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       startForegroundService(serviceIntent)

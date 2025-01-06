@@ -2,24 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Speech from 'expo-speech';
-import { MessageHistoryItem, TTSSettings } from '../types';
+import { MessageHistoryItem, TTSSettings, RootStackParamList } from '../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 
 const DEFAULT_SETTINGS = {
   rate: 1.0,
   pitch: 1.0,
-  language: 'en-US',
 };
+
+type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>;
 
 export function HomeScreen() {
   const { t } = useLanguage();
   const [messageHistory, setMessageHistory] = useState<MessageHistoryItem[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ttsSettings, setTtsSettings] = useState<TTSSettings>(DEFAULT_SETTINGS);
-  const route = useRoute();
+  const route = useRoute<HomeScreenRouteProp>();
 
   useEffect(() => {
     loadSettings();
@@ -44,10 +45,8 @@ export function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    // Handle shared text when received through navigation params
     if (route.params?.sharedText) {
       handleNewText(route.params.sharedText);
-      // Automatically start reading the shared text
       handleSpeak(route.params.sharedText);
     }
   }, [route.params?.sharedText]);
@@ -102,13 +101,10 @@ export function HomeScreen() {
 
   const handleSpeak = async (textToSpeak: string) => {
     try {
-      // Stop any ongoing speech
       await Speech.stop();
-      // Start speaking the new text
       await Speech.speak(textToSpeak, {
-        language: 'en', // Or use your app's selected language
-        pitch: 1.0,
-        rate: 0.75,
+        pitch: ttsSettings.pitch,
+        rate: ttsSettings.rate,
       });
     } catch (error) {
       console.error('Error speaking text:', error);

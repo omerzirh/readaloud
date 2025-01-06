@@ -5,15 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Speech from 'expo-speech';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLanguage } from '../i18n/LanguageContext';
-import { APP_LANGUAGES, formatVoiceLanguage, getUniqueLanguageVoices } from '../utils/languageUtils';
-import { Ionicons } from '@expo/vector-icons';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { APP_LANGUAGES } from '../utils/languageUtils';
 import { RootStackParamList } from '../types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const DEFAULT_SETTINGS = {
   rate: 1.0,
   pitch: 1.0,
-  language: 'en-US',
 };
 
 type Props = {
@@ -23,11 +21,9 @@ type Props = {
 export const SettingsScreen = ({ navigation }: Props) => {
   const { t, language, setLanguage } = useLanguage();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
 
   useEffect(() => {
     loadSettings();
-    loadAvailableVoices();
   }, []);
 
   const loadSettings = async () => {
@@ -41,27 +37,6 @@ export const SettingsScreen = ({ navigation }: Props) => {
     }
   };
 
-  const loadAvailableVoices = async () => {
-    try {
-      const voices = await Speech.getAvailableVoicesAsync();
-      // Get unique voices and sort them alphabetically
-      const uniqueVoices = getUniqueLanguageVoices(voices).sort((a, b) => {
-        const langA = formatVoiceLanguage(a, language);
-        const langB = formatVoiceLanguage(b, language);
-        return langA.localeCompare(langB);
-      });
-      setAvailableVoices(uniqueVoices);
-    } catch (error) {
-      console.error('Error loading voices:', error);
-      setAvailableVoices([]); // Set empty array on error
-    }
-  };
-
-  // Add useEffect to reload voices when language changes
-  useEffect(() => {
-    loadAvailableVoices();
-  }, [language]);
-
   const saveSettings = async (newSettings: typeof DEFAULT_SETTINGS) => {
     try {
       await AsyncStorage.setItem('ttsSettings', JSON.stringify(newSettings));
@@ -70,29 +45,9 @@ export const SettingsScreen = ({ navigation }: Props) => {
       Speech.speak(t('settings', 'preview'), {
         rate: newSettings.rate,
         pitch: newSettings.pitch,
-        language: newSettings.language,
       });
     } catch (error) {
       console.error('Error saving settings:', error);
-    }
-  };
-
-  const navigateToLanguageSelect = () => {
-    if (availableVoices.length === 0) {
-      // If no voices are loaded, try loading them again before navigating
-      loadAvailableVoices().then(() => {
-        navigation.navigate('LanguageSelect', {
-          voices: availableVoices,
-          selectedLanguage: settings.language,
-          onSelect: (language) => saveSettings({ ...settings, language }),
-        });
-      });
-    } else {
-      navigation.navigate('LanguageSelect', {
-        voices: availableVoices,
-        selectedLanguage: settings.language,
-        onSelect: (language) => saveSettings({ ...settings, language }),
-      });
     }
   };
 
@@ -150,24 +105,6 @@ export const SettingsScreen = ({ navigation }: Props) => {
             }
           />
           <Text style={styles.valueText}>{settings.pitch.toFixed(2)}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings', 'ttsLanguage')}</Text>
-          <TouchableOpacity
-            style={styles.languageSelector}
-            onPress={navigateToLanguageSelect}
-          >
-            <Text style={styles.selectedLanguageDisplay}>
-              {availableVoices.find(v => v.language.split('-')[0] === settings.language.split('-')[0])
-                ? formatVoiceLanguage(
-                    availableVoices.find(v => v.language.split('-')[0] === settings.language.split('-')[0])!,
-                    language
-                  )
-                : settings.language}
-            </Text>
-            <Ionicons name="chevron-forward" size={24} color="#007AFF" />
-          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -240,20 +177,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  languageSelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#007AFF',
-  },
-  selectedLanguageDisplay: {
-    fontSize: 16,
-    color: '#007AFF',
-    flex: 1,
-    marginRight: 10,
   },
 }); 

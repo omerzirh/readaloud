@@ -18,7 +18,6 @@ import java.util.*
 class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = null
     private var textToRead: String? = null
-    private var languageCode: String? = null
     private val CHANNEL_ID = "ReadAloudService"
     private val NOTIFICATION_ID = 1
     private var isInitialized = false
@@ -101,14 +100,12 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
         Log.d("TextToSpeechService", "onStartCommand called")
         try {
             val text = intent?.getStringExtra("text")
-            languageCode = intent?.getStringExtra("language") ?: Locale.getDefault().language
-            
             if (text.isNullOrEmpty()) {
                 handleError("No text provided")
                 return START_NOT_STICKY
             }
             textToRead = text
-            Log.d("TextToSpeechService", "Received text to read: ${text.take(50)}... in language: $languageCode")
+            Log.d("TextToSpeechService", "Received text to read: ${text.take(50)}...")
             
             if (isInitialized) {
                 speakText()
@@ -126,42 +123,18 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
         if (status == TextToSpeech.SUCCESS) {
             try {
                 tts?.let { tts ->
-                    // First try the selected/default language
-                    var locale = try {
-                        Locale(languageCode ?: Locale.getDefault().language)
-                    } catch (e: Exception) {
-                        Log.e("TextToSpeechService", "Error creating locale, falling back to system default", e)
-                        Locale.getDefault()
-                    }
-
-                    // Try to set the language
-                    var result = tts.setLanguage(locale)
-                    
-                    // If the language is not available, try system default
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.w("TextToSpeechService", "Selected language not available: ${locale.language}, trying system default")
-                        locale = Locale.getDefault()
-                        result = tts.setLanguage(locale)
-                    }
-
-                    // If system default also fails, try English as last resort
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.w("TextToSpeechService", "System default language not available: ${locale.language}, trying English")
-                        locale = Locale.US
-                        result = tts.setLanguage(locale)
-                    }
-
+                    val result = tts.setLanguage(Locale.getDefault())
                     when (result) {
                         TextToSpeech.LANG_MISSING_DATA -> {
-                            handleError("Language data is missing for all attempted languages")
+                            handleError("Language data is missing for system language")
                             return
                         }
                         TextToSpeech.LANG_NOT_SUPPORTED -> {
-                            handleError("No supported language available")
+                            handleError("System language is not supported")
                             return
                         }
                         else -> {
-                            Log.d("TextToSpeechService", "Language set successfully to: ${locale.displayLanguage}")
+                            Log.d("TextToSpeechService", "Language set to system default: ${Locale.getDefault().displayLanguage}")
                             isInitialized = true
                             speakText()
                         }

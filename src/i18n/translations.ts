@@ -4,7 +4,7 @@ export const translations = {
       readClipboard: 'Read Clipboard',
       settings: 'Settings',
       help: 'How to Use',
-      messageReader: 'Message Reader',
+      messageReader: 'Message Readers',
       reset: 'Reset to Defaults',
     },
     settings: {
